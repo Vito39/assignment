@@ -1,0 +1,22 @@
+a{
+    border: 5px solid black;
+    text-align: center;
+}
+
+
+.flex-container{
+	background-color:blue;
+    border: 5px solid black;
+    text-align: center;
+    text-decoration-style: bold;
+}
+.flex-container1{
+	background-color:blue;
+    border: 5px solid black;
+    text-align: center;
+}
+.flex-container2{
+	background-color:blue;
+    border: 5px solid black;
+    text-align: center;
+}

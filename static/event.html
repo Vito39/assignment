@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en">
+   <head>
+   	<link rel="stylesheet" href="styles.css">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+        	Assignment
+        </title>        
+    </head>
+<body>
+
+<div class="flex-container">
+<button id="parti" onclick="parti()">Click here to participate in Today's lucky draw</button>
+</div>
+
+<br>
+<div class="flex-container1">
+<p>Today's prize is</p>
+<p id="prize">prize  </p>
+<button id="toda" onclick="toda()">Click here to know Today's lucky draw prize</button>
+
+
+<form id="rewar">
+         <input type="text" id="reward" placeholder="ENTER Prize" />
+         <input type="submit" value="ENTER Prize"/>
+</form>
+</div>
+<br>
+
+<div class="flex-container2">
+<button id="see" onclick="seetoday()" >Click here to see last seven days winners</button>
+</div>
+<a href="index.html">log out</a>
+    
+<script>
+    
+//    const form = document.getElementById('parti')
+//    form.addEventListener('button',parti)
+
+    var url = document.location.href;
+    const user = url.split('?');
+    const username=user[1].trim();
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    today = mm+'-'+dd+'-'+yyyy;
+    const DATE=today; 
+
+    
+
+      async function toda() {
+      var url='/api/today'+'?'+'DATE'+'='+DATE;
+      const result = await fetch(url).then((res)=>res.json())
+      
+      console.log(result) 
+      if(result['prize']==undefined ||  result['prize'].length==0)
+      {
+      	document.getElementById("prize").innerHTML="To be decided";
+      }
+      else 
+      {
+      	document.getElementById("prize").innerHTML=result['prize'][0]['prize'];
+      }
+
+      }
+    
+
+
+    async function parti() {
+      const result = await fetch('/api/luckydraw',{
+      method: 'POST',
+      headers :{
+         'Content-Type' : 'application/json' 
+      },
+      body:JSON.stringify({
+      	username,DATE
+      })
+
+      }).then((res)=>res.json())
+
+
+       if(result.status==='ok')
+       {
+       	 alert('you have participate successfully');
+
+       }else {
+         alert(result.error)
+       }
+
+      }       
+
+      
+      if(username==='admin')
+      { 
+      const form = document.getElementById('rewar')
+      form.addEventListener('submit',reward)
+       
+      async function reward(event) {
+       event.preventDefault()
+      const reward= document.getElementById('reward').value
+      
+      console.log(reward);
+      const prize=reward;
+      const result = await fetch('/api/rewarde',{
+      method: 'POST',
+      headers :{
+         'Content-Type' : 'application/json' 
+      },
+      body:JSON.stringify({
+      	prize,DATE
+      })
+
+      }).then((res)=>res.json())
+
+
+       if(result.status==='ok')
+       {
+          alert('reward set successfully')
+       }else {
+         alert(result.error)
+       }	
+
+        
+
+      }
+      
+       }
+       else 
+       {
+       	alert('you can not set prize')
+       }
+      
+      
+       
+
+       async function seetoday(){
+     
+    var din = new Date();
+    var obj=[];
+     for(var i=0;i<7;i++)
+    {
+      
+    var dd = String(din.getDate()).padStart(2, '0');
+    var mm = String(din.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = din.getFullYear();
+    var today = mm+'-'+dd+'-'+yyyy;
+    
+    const DATE=today;
+
+      var result = await fetch('/api/winner',{
+      method: 'POST',
+      headers :{
+         'Content-Type' : 'application/json' 
+      },
+      body:JSON.stringify({
+      	DATE
+      })
+
+      }).then((res)=>res.json())
+      console.log(DATE);
+      din.setDate(din.getDate()-1);
+      obj.unshift({'winner':result['winner'],'prize':result['prize'],'date':DATE});
+     }
+
+      document.getElementById('see').innerHTML= print(obj);
+
+      function print(obj)
+      {
+      	var string="Winner | Prize | Date"+'</br>';
+        for(i=0;i<obj.length;i++)
+       {
+        string+=obj[i]['winner']+" | "+obj[i]['prize']+" | "+obj[i]['date'];
+        if(i+1!=obj.length)
+        string+='</br>'	
+
+       } 	
+
+       return string; 
+      }
+
+      
+      }
+
+
+
+</script>	
+
+
+   
+</body>
+</html>
